@@ -1,0 +1,6 @@
+{
+  "START_APP_ROUTE": "/",
+  "BASE_ROUTE": "/search-word",
+  "DIALOG_ROUTE": "/dialog",
+  "DEBUG_ROUTE": "/debug"
+}
