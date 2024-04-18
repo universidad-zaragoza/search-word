@@ -28,9 +28,8 @@ const useDialogController = () => {
   // Local variables
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSpeechOn, setIsSpeechOn] = useState<boolean>(false);
-  const [isSearchingWord, setIsSearchingWord] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(true);
   const [esWordsState, setEsWordsState] = useState(new WordLib(spanish_words)); // Listado que contiene 636598 palabras en español
-  const [wordToSearch, setWordToSearch] = useState<string>("");
   const [searchingText, setSearchingText] = useState<string>(
     "Esperando palabra..."
   );
@@ -58,6 +57,12 @@ const useDialogController = () => {
 
   // App Context Data
   const { printDebug } = useContext(AlexaContext);
+
+  // Interfaces
+  interface WordLvn {
+    word: string;
+    lvn: number;
+  }
 
   /**
    * Shows the loading icon at app first start or every time the user sends a request
@@ -96,38 +101,73 @@ const useDialogController = () => {
     printDebug(`+++ INTENT TYPE => ${intentType} `);
 
     if (intentType === "word-intent") {
-      setWordToSearch(userRequest.toUpperCase());
-      setSearchingText("Palabra recibida. Buscando...");
-      setIsSearchingWord(true);
-      searchWord(userRequest);
-      setIsSearchingWord(false);
+      await handleNewWord(userRequest);
     }
 
     dispatch(resetUserSpeechData());
   }, [intentType, voiceAPIStatus]);
 
-  const searchWord = (_word: string) => {
+  const handleNewWord = async (_word: string) => {
+    let wordFound: string = "";
+
+    setIsSearching(true);
+    setSearchingText("Palabra recibida. Buscando...");
+
+    setTimeout(async () => {
+      wordFound = await searchWord(userRequest);
+      printDebug(`Inside handleNewWord - wordFound 1 => ${wordFound}`);
+      setSearchingText(`Recibida: ${_word} - Encontrada: ${wordFound}`);
+      speechResponseToUserRequest(
+        `La palabra que he entendido es ${_word}, y la palabra que he encontrado en el diccionario es ${wordFound}`
+      );
+      setIsSearching(false);
+    }, 3000);
+  };
+
+  const searchWord = async (_userWord: string): Promise<string> => {
+    let potentialWords: WordLvn[] = [];
+
     const spanishDictionaryWords = esWordsState.getDictionaryWords();
 
-    spanishDictionaryWords.map((spanishWord) => {
+    spanishDictionaryWords.map((word) => {
       const lvn = levenshteinDistance(
-        spanishWord.toLowerCase(),
-        _word.toLowerCase()
+        word.toLowerCase(),
+        _userWord.toLowerCase()
       );
 
       if (lvn >= 0.8) {
-        console.log(
-          `LVN DISTANCE between ${spanishWord} and ${_word} is ${lvn}`
-        );
-        printDebug(
-          `LVN DISTANCE between ${spanishWord} and ${_word} is ${lvn}`
-        );
+        potentialWords.push({ word, lvn });
+        console.log(`LVN DISTANCE between ${word} and ${_userWord} is ${lvn}`);
+        printDebug(`LVN DISTANCE between ${word} and ${_userWord} is ${lvn}`);
       }
-
-      setSearchingText(
-        `La palabra que he entendido es ${_word} y la palabra que he encontrado en el diccionario es ${spanishWord}`
-      );
     });
+
+    const wordWithMaxLVN = getWordWithMaxLvn(potentialWords);
+    return wordWithMaxLVN.word;
+  };
+
+  useEffect(() => {
+    const list: WordLvn[] = [
+      { word: "manzana", lvn: 1 },
+      { word: "mantana", lvn: 0.85 },
+    ];
+
+    const worMax = getWordWithMaxLvn(list);
+    console.log("+++ Inside useEffect => " + worMax.word);
+  }, []);
+
+  const getWordWithMaxLvn = (_wordsLvn: WordLvn[]) => {
+    const wordsOrdered = _wordsLvn.slice().sort((a, b) => b.lvn - a.lvn);
+
+    console.log(
+      "+++ Inside getWordWithMaxLvn - listNoOrdered  => " +
+        JSON.stringify(_wordsLvn)
+    );
+    console.log(
+      "+++ Inside getWordWithMaxLvn - listOrdered => " +
+        JSON.stringify(wordsOrdered)
+    );
+    return wordsOrdered[0];
   };
 
   /**
@@ -158,7 +198,7 @@ const useDialogController = () => {
     handleVoiceAPIIntents();
   }, [handleVoiceAPIIntents]);
 
-  return { searchingText, isLoading, isSpeechOn };
+  return { searchingText, isLoading, isSpeechOn, isSearching };
 };
 
 export default useDialogController;

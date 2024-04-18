@@ -25,7 +25,8 @@ import useDialogController from "./useDialogController";
  */
 const DialogView: React.FC = () => {
   /* View Controller */
-  const { searchingText, isLoading, isSpeechOn } = useDialogController();
+  const { searchingText, isLoading, isSpeechOn, isSearching } =
+    useDialogController();
 
   return (
     <>
@@ -58,8 +59,12 @@ const DialogView: React.FC = () => {
                     className="d-inline-block align-center"
                   />
                 </div>
-              ) : (
+              ) : isSearching ? (
                 <div className="grid-item item-waiting-text-alexa-loading-view item-waiting-text-alexa-loading-view-animation">
+                  {searchingText}
+                </div>
+              ) : (
+                <div className="grid-item item-waiting-text-alexa-loading-view">
                   {searchingText}
                 </div>
               )}
