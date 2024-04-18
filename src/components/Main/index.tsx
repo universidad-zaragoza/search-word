@@ -29,7 +29,7 @@ const MainView: React.FC = () => {
   /* Navbar properties */
   const navBarProps = {
     navBrand: {
-      name: "Buscar Palabras",
+      name: "Buscar similitud",
     },
     navBtns: [
       {
