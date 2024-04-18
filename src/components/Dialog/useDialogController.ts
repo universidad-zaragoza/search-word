@@ -117,11 +117,19 @@ const useDialogController = () => {
       wordFound = await searchWord(userRequest);
       printDebug(`Inside handleNewWord - wordFound 1 => ${wordFound}`);
       setSearchingText(`Recibida: ${_word} - Encontrada: ${wordFound}`);
-      speechResponseToUserRequest(
-        `La palabra que he entendido es ${_word}, y la palabra que he encontrado en el diccionario es ${wordFound}`
-      );
+
+      if (wordFound) {
+        speechResponseToUserRequest(
+          `La palabra que he entendido es ${_word}, y la palabra que he encontrado en el diccionario es ${wordFound}
+        <break strength='strong'/> Díme otra palabra.`
+        );
+      } else {
+        speechResponseToUserRequest(
+          `Lo siento, la palabra que me has dicho no existe. Por favor, vuelva a repetir la palabra o utilice una distinta.`
+        );
+      }
       setIsSearching(false);
-    }, 3000);
+    }, 2000);
   };
 
   const searchWord = async (_userWord: string): Promise<string> => {
