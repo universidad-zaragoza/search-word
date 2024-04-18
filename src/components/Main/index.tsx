@@ -29,7 +29,7 @@ const MainView: React.FC = () => {
   /* Navbar properties */
   const navBarProps = {
     navBrand: {
-      name: "Tu Amiga Virtual",
+      name: "Buscar Palabras",
     },
     navBtns: [
       {
@@ -44,7 +44,7 @@ const MainView: React.FC = () => {
   /* Footer properties */
   const footerProps = {
     icon: <FontAwesomeIcon icon={faBullhorn} size="lg" />,
-    msg: "Ejemplo: Alexa, me siento solo",
+    msg: "Ejemplo: Alexa, manzana",
   };
 
   return (

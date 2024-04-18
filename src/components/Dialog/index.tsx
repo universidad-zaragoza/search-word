@@ -25,9 +25,7 @@ import useDialogController from "./useDialogController";
  */
 const DialogView: React.FC = () => {
   /* View Controller */
-  const { isLoading, isSpeechOn } = useDialogController();
-  //useTest1();
-  //useTest2();
+  const { searchingText, isLoading, isSpeechOn } = useDialogController();
 
   return (
     <>
@@ -61,21 +59,9 @@ const DialogView: React.FC = () => {
                   />
                 </div>
               ) : (
-                <InputGroup size="lg" className="mb-3">
-                  <Form.Control
-                    placeholder="¿En qué te puedo ayudar?"
-                    aria-label="¿En qué te puedo ayudar?"
-                    aria-describedby="basic-addon2"
-                  />
-                  <Button
-                    id="save-debug-btn"
-                    path=""
-                    classStyle=""
-                    type="submit"
-                  >
-                    Enviar
-                  </Button>
-                </InputGroup>
+                <div className="grid-item item-waiting-text-alexa-loading-view item-waiting-text-alexa-loading-view-animation">
+                  {searchingText}
+                </div>
               )}
             </div>
           </div>
