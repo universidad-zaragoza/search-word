@@ -6,7 +6,6 @@
  * Version: 1.1                                                                                             *
  *                                                                                                          *
  ************************************************************************************************************/
-
 .container-menu-start-app-view {
   height: 100%;
   padding: 1em;
@@ -57,4 +56,5 @@
   width: 50%;
   position: relative;
   overflow: hidden;
+  gap: 10px;
 }

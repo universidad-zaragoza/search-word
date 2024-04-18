@@ -19,19 +19,27 @@ import useSpeechResponse from "./hooks/useSpeechResponse";
 import { spanish_words } from "@arvidbt/spanish-words";
 import { WordLib } from "@arvidbt/wordlib";
 import { levenshteinDistance } from "../../shared/utils/useLevenshteinDistance";
+import { spanish_proverbs } from "../../shared/constants/proverbs";
+import { MenuRootState } from "../../shared/redux/slices/menuSlice";
+import { normalizeString } from "../../shared/utils/useNormalizeString";
+import { spanish_phrases } from "../../shared/constants/phrases";
 
 const useDialogController = () => {
   // CONSTANS
-  const START_SPEECH = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
+  const START_SPEECH_WORDS = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
                           ¡Hola! Mi nombre es Alexa. Díme una palabra </amazon:emotion><break strength='strong'/></voice>`;
+  const START_SPEECH_PROVERBS = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
+                                ¡Hola! Mi nombre es Alexa. Díme un refrán </amazon:emotion><break strength='strong'/></voice>`;
+  const START_SPEECH_PHRASES = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
+                              ¡Hola! Mi nombre es Alexa. Díme una frase </amazon:emotion><break strength='strong'/></voice>`;
 
   // Local variables
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSpeechOn, setIsSpeechOn] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(true);
-  const [esWordsState, setEsWordsState] = useState(new WordLib(spanish_words)); // Listado que contiene 636598 palabras en español
+  const [esState, setEsState] = useState<WordLib>();
   const [searchingText, setSearchingText] = useState<string>(
-    "Esperando palabra..."
+    "Esperando consulta..."
   );
 
   // Global variables
@@ -50,6 +58,9 @@ const useDialogController = () => {
   const userRequest = useSelector(
     (state: VoiceRootState) => state.voiceState?.data?.userRequest
   );
+  const menuOption = useSelector(
+    (state: MenuRootState) => state.menuState.menuOption
+  );
 
   // Custom and React Hooks
   const dispatch = useDispatch();
@@ -59,10 +70,29 @@ const useDialogController = () => {
   const { printDebug } = useContext(AlexaContext);
 
   // Interfaces
-  interface WordLvn {
-    word: string;
+  interface QueryLvn {
+    result: string;
     lvn: number;
   }
+
+  const initialization = useCallback(() => {
+    switch (menuOption) {
+      case "words":
+        setEsState(new WordLib(spanish_words));
+        speechResponseToUserRequest(START_SPEECH_WORDS);
+        break;
+
+      case "proverbs":
+        setEsState(new WordLib(spanish_proverbs));
+        speechResponseToUserRequest(START_SPEECH_PROVERBS);
+        break;
+
+      case "phrases":
+        setEsState(new WordLib(spanish_phrases));
+        speechResponseToUserRequest(START_SPEECH_PHRASES);
+        break;
+    }
+  }, [voiceAPIStatus]);
 
   /**
    * Shows the loading icon at app first start or every time the user sends a request
@@ -88,10 +118,6 @@ const useDialogController = () => {
     }
   }, [voiceMsgProps]);
 
-  const sayStartSpeech = useCallback(() => {
-    speechResponseToUserRequest(START_SPEECH);
-  }, [voiceAPIStatus]);
-
   /**
    * Manages the intents received from the Voice API
    */
@@ -101,82 +127,94 @@ const useDialogController = () => {
     printDebug(`+++ INTENT TYPE => ${intentType} `);
 
     if (intentType === "word-intent") {
-      await handleNewWord(userRequest);
+      await handleNewQuery(userRequest);
     }
 
     dispatch(resetUserSpeechData());
   }, [intentType, voiceAPIStatus]);
 
-  const handleNewWord = async (_word: string) => {
-    let wordFound: string = "";
+  const handleNewQuery = async (_word: string) => {
+    let resultFound: string = "";
 
     setIsSearching(true);
-    setSearchingText("Palabra recibida. Buscando...");
+    setSearchingText("Consulta recibida. Buscando...");
 
     setTimeout(async () => {
-      wordFound = await searchWord(userRequest);
-      printDebug(`Inside handleNewWord - wordFound 1 => ${wordFound}`);
-      setSearchingText(`Recibida: ${_word} - Encontrada: ${wordFound}`);
+      resultFound = await searchUserQuery(userRequest);
+      printDebug(`Inside handleNewWord - wordFound 1 => ${resultFound}`);
 
-      if (wordFound) {
+      if (resultFound) {
+        setSearchingText(`Recibida: ${_word} - Encontrada: ${resultFound}`);
         speechResponseToUserRequest(
-          `La palabra que he entendido es ${_word}, y la palabra que he encontrado en el diccionario es ${wordFound}
-        <break strength='strong'/> Díme otra palabra.`
+          `La consulta que he entendido es ${_word}, y el resultado que he encontrado en el diccionario es ${resultFound}
+        <break strength='strong'/> Díme otra consulta.`
         );
       } else {
+        setSearchingText(`Recibida: ${_word} - Encontrada: sin resultados`);
         speechResponseToUserRequest(
-          `Lo siento, la palabra que me has dicho no existe. Por favor, vuelva a repetir la palabra o utilice una distinta.`
+          `Lo siento, la consulta que me has dicho no existe. Por favor, vuelva a repetirla o utilice una distinta.`
         );
       }
       setIsSearching(false);
     }, 2000);
   };
 
-  const searchWord = async (_userWord: string): Promise<string> => {
-    let potentialWords: WordLvn[] = [];
+  const searchUserQuery = async (_userWord: string): Promise<string> => {
+    let resultWithMaxLVN: string = "";
 
-    const spanishDictionaryWords = esWordsState.getDictionaryWords();
+    if (esState) {
+      let potentialResults: QueryLvn[] = [];
 
-    spanishDictionaryWords.map((word) => {
-      const lvn = levenshteinDistance(
-        word.toLowerCase(),
-        _userWord.toLowerCase()
+      const spanishDictionary = esState.getDictionaryWords();
+
+      spanishDictionary.map((result) => {
+        const lvn = levenshteinDistance(
+          normalizeString(result),
+          normalizeString(_userWord)
+        );
+
+        if (lvn >= 0.8) {
+          potentialResults.push({ result, lvn });
+          console.log(
+            `LVN DISTANCE between ${result} and ${_userWord} is ${lvn}`
+          );
+          printDebug(
+            `LVN DISTANCE between ${result} and ${_userWord} is ${lvn}`
+          );
+        }
+      });
+
+      resultWithMaxLVN = getResultWithMaxLvn(potentialResults);
+    }
+
+    return resultWithMaxLVN;
+  };
+
+  const getResultWithMaxLvn = (_resultsLvn: QueryLvn[]) => {
+    if (_resultsLvn.length > 0) {
+      const resultsOrdered = _resultsLvn.slice().sort((a, b) => b.lvn - a.lvn);
+
+      console.log(
+        "+++ Inside getWordWithMaxLvn - listNoOrdered  => " +
+          JSON.stringify(_resultsLvn)
+      );
+      console.log(
+        "+++ Inside getWordWithMaxLvn - listOrdered => " +
+          JSON.stringify(resultsOrdered)
       );
 
-      if (lvn >= 0.8) {
-        potentialWords.push({ word, lvn });
-        console.log(`LVN DISTANCE between ${word} and ${_userWord} is ${lvn}`);
-        printDebug(`LVN DISTANCE between ${word} and ${_userWord} is ${lvn}`);
-      }
-    });
+      return resultsOrdered[0].result;
+    }
 
-    const wordWithMaxLVN = getWordWithMaxLvn(potentialWords);
-    return wordWithMaxLVN.word;
+    return "";
   };
 
+  /**
+   * Execution of the method on the first rendering and when dependencies upon the showLoadingIcon function are modified
+   */
   useEffect(() => {
-    const list: WordLvn[] = [
-      { word: "manzana", lvn: 1 },
-      { word: "mantana", lvn: 0.85 },
-    ];
-
-    const worMax = getWordWithMaxLvn(list);
-    console.log("+++ Inside useEffect => " + worMax.word);
-  }, []);
-
-  const getWordWithMaxLvn = (_wordsLvn: WordLvn[]) => {
-    const wordsOrdered = _wordsLvn.slice().sort((a, b) => b.lvn - a.lvn);
-
-    console.log(
-      "+++ Inside getWordWithMaxLvn - listNoOrdered  => " +
-        JSON.stringify(_wordsLvn)
-    );
-    console.log(
-      "+++ Inside getWordWithMaxLvn - listOrdered => " +
-        JSON.stringify(wordsOrdered)
-    );
-    return wordsOrdered[0];
-  };
+    initialization();
+  }, [initialization]);
 
   /**
    * Execution of the method on the first rendering and when dependencies upon the showLoadingIcon function are modified
@@ -184,13 +222,6 @@ const useDialogController = () => {
   useEffect(() => {
     showLoadingIcon();
   }, [showLoadingIcon]);
-
-  /**
-   * Execution of the method on the first rendering and when dependencies upon the sayStartSpeech function are modified
-   */
-  useEffect(() => {
-    sayStartSpeech();
-  }, [sayStartSpeech]);
 
   /**
    * Execution of the method on the first rendering and when dependencies upon the sayStartSpeech function are modified

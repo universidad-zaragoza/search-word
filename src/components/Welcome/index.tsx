@@ -20,15 +20,31 @@ const StartAppView: React.FC = () => {
       <div className="container-fluid">
         <div className="container-menu-start-app-view">
           <div className="grid-container-start-app-view">
-            <div className="item-logo-start-app-view">Buscar Palabras</div>
+            <div className="item-logo-start-app-view">Buscar similitud</div>
             <div className="item-button-start-app-view">
               <Button
-                id="start"
+                id="words"
                 path="/dialog"
                 classStyle="btn-primary item-button"
                 type="button"
               >
-                Comenzar
+                Palabras
+              </Button>
+              <Button
+                id="proverbs"
+                path="/dialog"
+                classStyle="btn-primary item-button"
+                type="button"
+              >
+                Refranes
+              </Button>
+              <Button
+                id="phrases"
+                path="/dialog"
+                classStyle="btn-primary item-button"
+                type="button"
+              >
+                Frases
               </Button>
             </div>
           </div>
