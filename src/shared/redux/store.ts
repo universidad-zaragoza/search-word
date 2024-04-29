@@ -11,6 +11,13 @@ import voiceSlice from "./slices/voiceSlice";
 import speechDBSlice from "./slices/speechDBSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
+const defaultMiddlewareConfig = {
+  serializableCheck: {
+    ignoredActions: ["speechDBState/setUserDocRef"],
+    ignoredPaths: ["speechDBState.speechData.docRef"],
+  },
+};
+
 /**
  * Redux store with the available reducers
  */
@@ -20,4 +27,6 @@ export const store = configureStore({
     menuState: menuSlice,
     speechDBState: speechDBSlice,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware(defaultMiddlewareConfig),
 });
