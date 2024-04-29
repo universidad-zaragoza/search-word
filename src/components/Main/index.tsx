@@ -14,6 +14,7 @@ import React from "react";
 import { faCode } from "@fortawesome/free-solid-svg-icons";
 import { faBullhorn } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 // Import Components
 import Navbar from "../Navbar";
@@ -32,6 +33,11 @@ const MainView: React.FC = () => {
       name: "Buscar similitud",
     },
     navBtns: [
+      {
+        name: "back-btn",
+        icon: faArrowLeft,
+        path: "/",
+      },
       {
         name: "debug-btn",
         icon: faCode,

@@ -12,12 +12,15 @@ import DebugView from "./components/Debug";
 
 // Import Controller
 import useAlexaWrapper from "./shared/hooks/useAlexaWrapper";
+import useFirebase from "./api/firebase/useFirebase";
 
 // Export Context
+export const FirebaseContext = React.createContext<any>({});
 export const AlexaContext = React.createContext<any>({});
 
 function App() {
   /* Custom hooks */
+  const { getFirebaseDb } = useFirebase();
   const {
     debugMessages,
     printDebug,
@@ -28,26 +31,30 @@ function App() {
 
   return (
     <>
-      <AlexaContext.Provider
-        value={{
-          debugMessages,
-          printDebug,
-          sendLogToAlexa,
-          sendTextToAlexa,
-          resetDebugMessages,
-        }} // Global functions to all app's components
+      <FirebaseContext.Provider
+        value={{ getFirebaseDb }} // Global functions to all app's components
       >
-        <BrowserRouter basename={routes.BASE_ROUTE}>
-          <Routes>
-            <Route path={routes.START_APP_ROUTE} element={<WelcomeView />} />
-            <Route path={routes.DIALOG_ROUTE} element={<MainView />} />
-            <Route
-              path={routes.DEBUG_ROUTE}
-              element={<DebugView msg={debugMessages} />}
-            />
-          </Routes>
-        </BrowserRouter>
-      </AlexaContext.Provider>
+        <AlexaContext.Provider
+          value={{
+            debugMessages,
+            printDebug,
+            sendLogToAlexa,
+            sendTextToAlexa,
+            resetDebugMessages,
+          }} // Global functions to all app's components
+        >
+          <BrowserRouter basename={routes.BASE_ROUTE}>
+            <Routes>
+              <Route path={routes.START_APP_ROUTE} element={<WelcomeView />} />
+              <Route path={routes.DIALOG_ROUTE} element={<MainView />} />
+              <Route
+                path={routes.DEBUG_ROUTE}
+                element={<DebugView msg={debugMessages} />}
+              />
+            </Routes>
+          </BrowserRouter>
+        </AlexaContext.Provider>
+      </FirebaseContext.Provider>
     </>
   );
 }

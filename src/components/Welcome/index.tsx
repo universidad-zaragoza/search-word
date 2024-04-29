@@ -23,12 +23,20 @@ const StartAppView: React.FC = () => {
             <div className="item-logo-start-app-view">Buscar similitud</div>
             <div className="item-button-start-app-view">
               <Button
-                id="words"
+                id="normal-words"
                 path="/dialog"
                 classStyle="btn-primary item-button"
                 type="button"
               >
-                Palabras
+                Palabras Normales
+              </Button>{" "}
+              <Button
+                id="phonetic-words"
+                path="/dialog"
+                classStyle="btn-primary item-button"
+                type="button"
+              >
+                Palabras Fónetica
               </Button>
               <Button
                 id="proverbs"
@@ -37,14 +45,6 @@ const StartAppView: React.FC = () => {
                 type="button"
               >
                 Refranes
-              </Button>
-              <Button
-                id="phrases"
-                path="/dialog"
-                classStyle="btn-primary item-button"
-                type="button"
-              >
-                Frases
               </Button>
             </div>
           </div>
