@@ -14,6 +14,7 @@ import {
   addDoc,
   updateDoc,
   collection,
+  arrayUnion,
 } from "firebase/firestore";
 import { AlexaContext, FirebaseContext } from "../../App";
 import { SpeechDTO, UserSpeechDTO } from "../dtos/UserSpeechDTO";
@@ -70,7 +71,7 @@ const useFirebaseDBModel = () => {
 
       if (db && docRef) {
         await updateDoc(docRef, {
-          speechs: _speech,
+          speechs: arrayUnion(_speech),
         });
       } else {
         throw new Error(
