@@ -23,6 +23,7 @@ import { spanish_proverbs } from "../../shared/constants/proverbs";
 import { MenuRootState } from "../../shared/redux/slices/menuSlice";
 import { normalizeString } from "../../shared/utils/useNormalizeString";
 import { phonetic_words } from "../../shared/constants/phonetic-words";
+import { normal_words } from "../../shared/constants/normal-words";
 import useFirebaseDBModel from "../../shared/hooks/useFirebaseDBModel";
 
 const useDialogController = () => {
@@ -78,7 +79,7 @@ const useDialogController = () => {
   const initialization = useCallback(() => {
     switch (menuOption) {
       case "normal-words":
-        setEsState(new WordLib(spanish_words));
+        setEsState(new WordLib(normal_words));
         speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
@@ -139,44 +140,42 @@ const useDialogController = () => {
     setIsSearching(true);
     setSearchingText("Consulta recibida. Buscando...");
 
-    setTimeout(async () => {
-      resultFound = await searchUserQuery(userRequest);
-      printDebug(`Inside handleNewWord - wordFound 1 => ${resultFound}`);
+    resultFound = await searchUserQuery(userRequest);
+    printDebug(`Inside handleNewWord - wordFound 1 => ${resultFound}`);
 
-      if (resultFound) {
-        setSearchingText(`Recibida: ${_word} - Encontrada: ${resultFound}`);
-        await addSpeechToFirebaseDB({
-          userSpeech: _word,
-          algorithmAnswer: resultFound,
+    if (resultFound) {
+      setSearchingText(`Recibida: ${_word} - Encontrada: ${resultFound}`);
+      await addSpeechToFirebaseDB({
+        userSpeech: _word,
+        algorithmAnswer: resultFound,
+      })
+        .then(() => {
+          printDebug(`Consulta agrgada correctamente`);
         })
-          .then(() => {
-            printDebug(`Consulta agrgada correctamente`);
-          })
-          .catch((error) => {
-            printDebug(`Error al agregar la consulta: ${error}`);
-          });
-        speechResponseToUserRequest(
-          `La consulta que he entendido es ${_word}, y el resultado que he encontrado en el diccionario es ${resultFound}
+        .catch((error) => {
+          printDebug(`Error al agregar la consulta: ${error}`);
+        });
+      speechResponseToUserRequest(
+        `La consulta que he entendido es ${_word}, y el resultado que he encontrado en el diccionario es ${resultFound}
         <break strength='strong'/> Díme otra consulta.`
-        );
-      } else {
-        setSearchingText(`Recibida: ${_word} - Encontrada: sin resultados`);
-        await addSpeechToFirebaseDB({
-          userSpeech: _word,
-          algorithmAnswer: "sin resultados",
+      );
+    } else {
+      setSearchingText(`Recibida: ${_word} - Encontrada: sin resultados`);
+      await addSpeechToFirebaseDB({
+        userSpeech: _word,
+        algorithmAnswer: "sin resultados",
+      })
+        .then(() => {
+          printDebug(`Consulta agrgada correctamente`);
         })
-          .then(() => {
-            printDebug(`Consulta agrgada correctamente`);
-          })
-          .catch((error) => {
-            printDebug(`Error al agregar la consulta: ${error}`);
-          });
-        speechResponseToUserRequest(
-          `Lo siento, la consulta que me has dicho no existe. Por favor, vuelva a repetirla o utilice una distinta.`
-        );
-      }
-      setIsSearching(false);
-    }, 2000);
+        .catch((error) => {
+          printDebug(`Error al agregar la consulta: ${error}`);
+        });
+      speechResponseToUserRequest(
+        `Lo siento, la consulta que me has dicho no existe. Por favor, vuelva a repetirla o utilice una distinta.`
+      );
+    }
+    setIsSearching(false);
   };
 
   const searchUserQuery = async (_userWord: string): Promise<string> => {
