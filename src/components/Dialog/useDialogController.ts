@@ -76,21 +76,21 @@ const useDialogController = () => {
     lvn: number;
   }
 
-  const initialization = useCallback(() => {
+  const initialization = useCallback(async () => {
     switch (menuOption) {
       case "normal-words":
         setEsState(new WordLib(spanish_words));
-        speechResponseToUserRequest(SPEECH_WORDS);
+        await speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
       case "phonetic-words":
         setEsState(new WordLib(phonetic_words));
-        speechResponseToUserRequest(SPEECH_WORDS);
+        await speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
       case "proverbs":
         setEsState(new WordLib(spanish_proverbs));
-        speechResponseToUserRequest(SPEECH_PROVERBS);
+        await speechResponseToUserRequest(SPEECH_PROVERBS);
         break;
     }
   }, [voiceAPIStatus]);
@@ -140,7 +140,7 @@ const useDialogController = () => {
     setIsSearching(true);
     setSearchingText("Consulta recibida. Buscando...");
 
-    resultFound = await searchUserQuery(userRequest);
+    resultFound = await searchUserQuery(_word);
     printDebug(`Inside handleNewWord - wordFound 1 => ${resultFound}`);
 
     if (resultFound) {
@@ -155,7 +155,7 @@ const useDialogController = () => {
         .catch((error) => {
           printDebug(`Error al agregar la consulta: ${error}`);
         });
-      speechResponseToUserRequest(
+      await speechResponseToUserRequest(
         `La consulta que he entendido es ${_word}, y el resultado que he encontrado en el diccionario es ${resultFound}
         <break strength='strong'/> Díme otra consulta.`
       );
@@ -171,7 +171,7 @@ const useDialogController = () => {
         .catch((error) => {
           printDebug(`Error al agregar la consulta: ${error}`);
         });
-      speechResponseToUserRequest(
+      await speechResponseToUserRequest(
         `Lo siento, la consulta que me has dicho no existe. Por favor, vuelva a repetirla o utilice una distinta.`
       );
     }

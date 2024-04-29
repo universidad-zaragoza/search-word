@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), wasm(), topLevelAwait()],
     base: "/search-word",
     build: {
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
           manualChunks(id) {

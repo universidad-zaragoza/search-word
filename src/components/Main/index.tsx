@@ -36,7 +36,7 @@ const MainView: React.FC = () => {
       {
         name: "back-btn",
         icon: faArrowLeft,
-        path: "/",
+        path: "/menu",
       },
       {
         name: "debug-btn",

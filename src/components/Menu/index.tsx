@@ -1,6 +1,6 @@
 /************************************************************************************************************
  *                                                                                                          *
- * File: StartAppView.tsx                                                                                   *
+ * File: MenuView.tsx                                                                                       *
  * Author: Adnana Catrinel Dragut                                                                           *
  * Description: View with application's data loading progress                                               *
  * Version: 1.0                                                                                             *
@@ -12,9 +12,9 @@ import "./welcome.css";
 /**
  * View with application's progress
  *
- * @returns StartAppView
+ * @returns MenuView
  */
-const StartAppView: React.FC = () => {
+const MenuView: React.FC = () => {
   return (
     <>
       <div className="container-fluid">
@@ -54,4 +54,4 @@ const StartAppView: React.FC = () => {
   );
 };
 
-export default StartAppView;
+export default MenuView;

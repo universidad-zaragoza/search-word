@@ -7,7 +7,7 @@ import routes from "./routes.json";
 
 // Import Components
 import MainView from "./components/Main/index";
-import WelcomeView from "./components/Welcome/index";
+import MenuView from "./components/Menu/index";
 import DebugView from "./components/Debug";
 
 // Import Controller
@@ -50,7 +50,7 @@ function App() {
                 path={routes.START_APP_ROUTE}
                 element={<AuthenticationView />}
               />
-              <Route path={routes.MENU_ROUTE} element={<WelcomeView />} />
+              <Route path={routes.MENU_ROUTE} element={<MenuView />} />
               <Route path={routes.DIALOG_ROUTE} element={<MainView />} />
               <Route
                 path={routes.DEBUG_ROUTE}
