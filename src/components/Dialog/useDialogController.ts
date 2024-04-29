@@ -79,7 +79,7 @@ const useDialogController = () => {
   const initialization = useCallback(() => {
     switch (menuOption) {
       case "normal-words":
-        setEsState(new WordLib(normal_words));
+        setEsState(new WordLib(spanish_words));
         speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
@@ -194,13 +194,9 @@ const useDialogController = () => {
 
         if (lvn >= 0.8) {
           potentialResults.push({ result, lvn });
-          console.log(
-            `LVN DISTANCE between ${result} and ${_userWord} is ${lvn}`
-          );
-          printDebug(
-            `LVN DISTANCE between ${result} and ${_userWord} is ${lvn}`
-          );
         }
+
+        printDebug(`LVN DISTANCE between ${result} and ${_userWord} is ${lvn}`);
       });
 
       resultWithMaxLVN = getResultWithMaxLvn(potentialResults);
