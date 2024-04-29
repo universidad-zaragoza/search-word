@@ -16,7 +16,7 @@ import {
   collection,
 } from "firebase/firestore";
 import { AlexaContext, FirebaseContext } from "../../App";
-import { SpeechDTO, UserSpeechDTO } from "../dtos/userSpeechDTO";
+import { SpeechDTO, UserSpeechDTO } from "../dtos/UserSpeechDTO";
 import { SpeechDBRootState } from "../redux/slices/speechDBSlice";
 
 const useFirebaseDBModel = () => {

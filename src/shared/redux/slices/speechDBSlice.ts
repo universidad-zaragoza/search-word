@@ -7,8 +7,8 @@
  *                                                                                                          *
  ************************************************************************************************************/
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { SpeechDTO, UserSpeechDTO } from "../../dtos/userSpeechDTO";
 import { DocumentData, DocumentReference } from "firebase/firestore";
+import { SpeechDTO, UserSpeechDTO } from "../../dtos/UserSpeechDTO";
 
 // Interface with the structure of the global state (must be the same as the reducer definition)
 export interface SpeechDBRootState {

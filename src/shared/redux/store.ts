@@ -8,6 +8,7 @@
  ************************************************************************************************************/
 import menuSlice from "./slices/menuSlice";
 import voiceSlice from "./slices/voiceSlice";
+import speechDBSlice from "./slices/speechDBSlice";
 import { configureStore } from "@reduxjs/toolkit";
 
 /**
@@ -17,5 +18,6 @@ export const store = configureStore({
   reducer: {
     voiceState: voiceSlice,
     menuState: menuSlice,
+    speechDBState: speechDBSlice,
   },
 });
