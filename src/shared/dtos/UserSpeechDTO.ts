@@ -14,7 +14,7 @@ export interface SpeechDTO {
 }
 
 export interface UserSpeechDTO {
-  docRef?: DocumentReference<DocumentData, DocumentData> | null; // docRef for the user document
+  docRef?: DocumentReference<DocumentData, DocumentData> | null;
   userId: string;
   speechs: SpeechDTO[];
 }

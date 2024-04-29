@@ -13,6 +13,7 @@ import DebugView from "./components/Debug";
 // Import Controller
 import useAlexaWrapper from "./shared/hooks/useAlexaWrapper";
 import useFirebase from "./api/firebase/useFirebase";
+import AuthenticationView from "./components/Authentication";
 
 // Export Context
 export const FirebaseContext = React.createContext<any>({});
@@ -45,7 +46,11 @@ function App() {
         >
           <BrowserRouter basename={routes.BASE_ROUTE}>
             <Routes>
-              <Route path={routes.START_APP_ROUTE} element={<WelcomeView />} />
+              <Route
+                path={routes.START_APP_ROUTE}
+                element={<AuthenticationView />}
+              />
+              <Route path={routes.MENU_ROUTE} element={<WelcomeView />} />
               <Route path={routes.DIALOG_ROUTE} element={<MainView />} />
               <Route
                 path={routes.DEBUG_ROUTE}

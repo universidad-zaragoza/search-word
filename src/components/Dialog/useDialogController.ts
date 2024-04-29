@@ -23,19 +23,14 @@ import { spanish_proverbs } from "../../shared/constants/proverbs";
 import { MenuRootState } from "../../shared/redux/slices/menuSlice";
 import { normalizeString } from "../../shared/utils/useNormalizeString";
 import { phonetic_words } from "../../shared/constants/phonetic-words";
-import {
-  setDocRef,
-  setUserId,
-  SpeechDBRootState,
-} from "../../shared/redux/slices/speechDBSlice";
 import useFirebaseDBModel from "../../shared/hooks/useFirebaseDBModel";
 
 const useDialogController = () => {
   // CONSTANS
-  const START_SPEECH_WORDS = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
-                          ¡Hola! Mi nombre es Alexa. Díme una palabra </amazon:emotion><break strength='strong'/></voice>`;
-  const START_SPEECH_PROVERBS = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
-                                ¡Hola! Mi nombre es Alexa. Díme un refrán </amazon:emotion><break strength='strong'/></voice>`;
+  const SPEECH_WORDS = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
+                       Díme una palabra </amazon:emotion><break strength='strong'/></voice>`;
+  const SPEECH_PROVERBS = `<voice name='Lucia'><amazon:emotion name="excited" intensity="high"> 
+                          Díme un refrán </amazon:emotion><break strength='strong'/></voice>`;
 
   // Local variables
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -65,15 +60,11 @@ const useDialogController = () => {
   const menuOption = useSelector(
     (state: MenuRootState) => state.menuState.menuOption
   );
-  const speechData = useSelector(
-    (state: SpeechDBRootState) => state.speechDBState.speechData
-  );
 
   // Custom and React Hooks
   const dispatch = useDispatch();
   const { speechResponseToUserRequest } = useSpeechResponse();
-  const { createSpeechInFirebaseDB, addSpeechToFirebaseDB } =
-    useFirebaseDBModel();
+  const { addSpeechToFirebaseDB } = useFirebaseDBModel();
 
   // App Context Data
   const { printDebug } = useContext(AlexaContext);
@@ -88,17 +79,17 @@ const useDialogController = () => {
     switch (menuOption) {
       case "normal-words":
         setEsState(new WordLib(spanish_words));
-        speechResponseToUserRequest(START_SPEECH_WORDS);
+        speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
       case "phonetic-words":
         setEsState(new WordLib(phonetic_words));
-        speechResponseToUserRequest(START_SPEECH_WORDS);
+        speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
       case "proverbs":
         setEsState(new WordLib(spanish_proverbs));
-        speechResponseToUserRequest(START_SPEECH_PROVERBS);
+        speechResponseToUserRequest(SPEECH_PROVERBS);
         break;
     }
   }, [voiceAPIStatus]);
@@ -135,35 +126,12 @@ const useDialogController = () => {
     printDebug(`+++ VOICE API STATUS => ${voiceAPIStatus} `);
     printDebug(`+++ INTENT TYPE => ${intentType} `);
 
-    if (intentType === "name-intent") {
-      await handleNewUserRequest(userRequest);
-    } else if (intentType === "word-intent") {
+    if (intentType === "word-intent") {
       await handleNewQuery(userRequest);
     }
 
     dispatch(resetUserSpeechData());
   }, [intentType, voiceAPIStatus]);
-
-  const handleNewUserRequest = async (_userName: string) => {
-    dispatch(setUserId(_userName));
-
-    //Crear documento en BD con el nombre del usuario y guardar docRef en Redux
-    let speechDataUpdated = { ...speechData };
-    speechDataUpdated.userId = _userName;
-
-    await createSpeechInFirebaseDB(speechDataUpdated)
-      .then((docRefId) => {
-        printDebug(`Usuario agregado con docRefId: ${docRefId}`);
-        dispatch(setDocRef(docRefId));
-        speechResponseToUserRequest(`Usuario registrado correctamente`);
-      })
-      .catch((error) => {
-        printDebug(`Error al agregar el nuevo usuario: ${error}`);
-        speechResponseToUserRequest(
-          `Oh! parece que no se ha podido registrar el usuario`
-        );
-      });
-  };
 
   const handleNewQuery = async (_word: string) => {
     let resultFound: string = "";
@@ -180,7 +148,13 @@ const useDialogController = () => {
         await addSpeechToFirebaseDB({
           userSpeech: _word,
           algorithmAnswer: resultFound,
-        });
+        })
+          .then(() => {
+            printDebug(`Consulta agrgada correctamente`);
+          })
+          .catch((error) => {
+            printDebug(`Error al agregar la consulta: ${error}`);
+          });
         speechResponseToUserRequest(
           `La consulta que he entendido es ${_word}, y el resultado que he encontrado en el diccionario es ${resultFound}
         <break strength='strong'/> Díme otra consulta.`
@@ -190,7 +164,13 @@ const useDialogController = () => {
         await addSpeechToFirebaseDB({
           userSpeech: _word,
           algorithmAnswer: "sin resultados",
-        });
+        })
+          .then(() => {
+            printDebug(`Consulta agrgada correctamente`);
+          })
+          .catch((error) => {
+            printDebug(`Error al agregar la consulta: ${error}`);
+          });
         speechResponseToUserRequest(
           `Lo siento, la consulta que me has dicho no existe. Por favor, vuelva a repetirla o utilice una distinta.`
         );

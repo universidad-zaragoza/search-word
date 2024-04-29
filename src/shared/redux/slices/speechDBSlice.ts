@@ -25,6 +25,7 @@ interface SpeechDBState {
 // Initialization of state's variables
 const initialState: SpeechDBState = {
   speechData: {
+    docRef: null,
     userId: "",
     speechs: [],
   },
@@ -37,7 +38,7 @@ export const speechDBSlice = createSlice({
   name: "speechDBState",
   initialState,
   reducers: {
-    setDocRef: (
+    setUserDocRef: (
       state: SpeechDBState,
       action: PayloadAction<DocumentReference<
         DocumentData,
@@ -55,5 +56,5 @@ export const speechDBSlice = createSlice({
   },
 });
 
-export const { setDocRef, setUserId, addSpeech } = speechDBSlice.actions;
+export const { setUserDocRef, setUserId, addSpeech } = speechDBSlice.actions;
 export default speechDBSlice.reducer;
