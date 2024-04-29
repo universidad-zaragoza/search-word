@@ -21,7 +21,7 @@ export const normal_words = [
   "pino",
   "pájaro",
   "perro",
-  "río",
+  "rio",
   "sapo",
   "sol",
   "sal",

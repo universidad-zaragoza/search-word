@@ -84,7 +84,7 @@ const useDialogController = () => {
         break;
 
       case "phonetic-words":
-        setEsState(new WordLib(phonetic_words));
+        setEsState(new WordLib(spanish_words));
         await speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
@@ -99,7 +99,7 @@ const useDialogController = () => {
    * Shows the loading icon at app first start or every time the user sends a request
    */
   const showLoadingIcon = useCallback(() => {
-    printDebug(`+++ INSIDE loading() - voiceAPIStatus => ${voiceAPIStatus}`);
+    printDebug(`+++ INSIDE 2 loading() - voiceAPIStatus => ${voiceAPIStatus}`);
     printDebug(
       `+++ INSIDE loading() - voiceMsgStatus => ${voiceMsgProps.status}`
     );
@@ -179,14 +179,20 @@ const useDialogController = () => {
   };
 
   const searchUserQuery = async (_userWord: string): Promise<string> => {
+    let dictionary: string[] = [];
     let resultWithMaxLVN: string = "";
 
     if (esState) {
       let potentialResults: QueryLvn[] = [];
 
-      const spanishDictionary = esState.getDictionaryWords();
+      if (menuOption === "proverbs") {
+        dictionary = esState.getDictionaryWords();
+      } else {
+        const wordStartingLetters = getWordStartingLetters(_userWord);
+        dictionary = esState.startsWith(wordStartingLetters);
+      }
 
-      spanishDictionary.map((result) => {
+      dictionary.map((result) => {
         const lvn = levenshteinDistance(
           normalizeString(result),
           normalizeString(_userWord)
@@ -196,13 +202,24 @@ const useDialogController = () => {
           potentialResults.push({ result, lvn });
         }
 
-        printDebug(`LVN DISTANCE between ${result} and ${_userWord} is ${lvn}`);
+        printDebug(
+          `LVN DISTANCE between ${normalizeString(
+            result
+          )} and ${normalizeString(_userWord)} is ${lvn}`
+        );
       });
 
       resultWithMaxLVN = getResultWithMaxLvn(potentialResults);
     }
 
     return resultWithMaxLVN;
+  };
+
+  const getWordStartingLetters = (_word: string) => {
+    const middleLength: number = Math.floor(_word.length / 2);
+    const startingLetters: string = _word.substring(0, middleLength);
+
+    return startingLetters;
   };
 
   const getResultWithMaxLvn = (_resultsLvn: QueryLvn[]) => {
