@@ -200,13 +200,12 @@ const useDialogController = () => {
 
         if (lvn >= 0.8) {
           potentialResults.push({ result, lvn });
+          printDebug(
+            `LVN DISTANCE between ${normalizeString(
+              result
+            )} and ${normalizeString(_userWord)} is ${lvn}`
+          );
         }
-
-        printDebug(
-          `LVN DISTANCE between ${normalizeString(
-            result
-          )} and ${normalizeString(_userWord)} is ${lvn}`
-        );
       });
 
       resultWithMaxLVN = getResultWithMaxLvn(potentialResults);
