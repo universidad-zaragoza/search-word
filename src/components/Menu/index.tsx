@@ -28,7 +28,7 @@ const MenuView: React.FC = () => {
                 classStyle="btn-primary item-button"
                 type="button"
               >
-                Palabras Normales
+                Palabras y Refranes
               </Button>{" "}
               <Button
                 id="phonetic-words"

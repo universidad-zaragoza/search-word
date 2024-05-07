@@ -1,4 +1,6 @@
 export const spanish_proverbs = [
+  "El elefante es un animal muy grande",
+  "Mi nombre es Robot y me gusta ayudar",
   "a otro perro con ese hueso",
   "al pais que fueres, haz lo que vieres",
   "algo es algo, peor es nada",

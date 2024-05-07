@@ -79,7 +79,7 @@ const useDialogController = () => {
   const initialization = useCallback(async () => {
     switch (menuOption) {
       case "normal-words":
-        setEsState(new WordLib(spanish_words));
+        setEsState(new WordLib(spanish_words.concat(spanish_proverbs)));
         await speechResponseToUserRequest(SPEECH_WORDS);
         break;
 
@@ -150,15 +150,12 @@ const useDialogController = () => {
         algorithmAnswer: resultFound,
       })
         .then(() => {
-          printDebug(`Consulta agrgada correctamente`);
+          printDebug(`Consulta agregada correctamente`);
         })
         .catch((error) => {
           printDebug(`Error al agregar la consulta: ${error}`);
         });
-      await speechResponseToUserRequest(
-        `La consulta que he entendido es ${_word}, y el resultado que he encontrado en el diccionario es ${resultFound}
-        <break strength='strong'/> Díme otra consulta.`
-      );
+      await speechResponseToUserRequest(`Siguiente`);
     } else {
       setSearchingText(`Recibida: ${_word} - Encontrada: sin resultados`);
       await addSpeechToFirebaseDB({
@@ -171,9 +168,7 @@ const useDialogController = () => {
         .catch((error) => {
           printDebug(`Error al agregar la consulta: ${error}`);
         });
-      await speechResponseToUserRequest(
-        `Lo siento, la consulta que me has dicho no existe. Por favor, vuelva a repetirla o utilice una distinta.`
-      );
+      await speechResponseToUserRequest(`Siguiente`);
     }
     setIsSearching(false);
   };
