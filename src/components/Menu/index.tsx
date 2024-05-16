@@ -32,19 +32,11 @@ const MenuView: React.FC = () => {
               </Button>{" "}
               <Button
                 id="phonetic-words"
-                path="/dialog"
+                path="/"
                 classStyle="btn-primary item-button"
                 type="button"
               >
-                Palabras Fónetica
-              </Button>
-              <Button
-                id="proverbs"
-                path="/dialog"
-                classStyle="btn-primary item-button"
-                type="button"
-              >
-                Refranes
+                Atrás
               </Button>
             </div>
           </div>

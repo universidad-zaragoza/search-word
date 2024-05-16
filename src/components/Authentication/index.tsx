@@ -10,6 +10,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import "./welcome.css";
 import useAuthenticationController from "./useAuthenticationController";
+import { levenshteinDistance } from "../../shared/utils/useLevenshteinDistance";
 
 /**
  * View with application's progress
